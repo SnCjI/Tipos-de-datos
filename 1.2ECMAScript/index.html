@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador de Viajes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Planificador de Viajes</h1>
+        
+        <div class="form-container">
+            <h2>Registro de Destino</h2>
+            <div class="form-group">
+                <label for="destino">Destino:</label>
+                <select id="destino">
+                    <option value="">Selecciona un destino</option>
+                    <option value="París">París</option>
+                    <option value="Roma">Roma</option>
+                    <option value="Barcelona">Barcelona</option>
+                    <option value="Tokio">Tokio</option>
+                    <option value="Nueva York">Nueva York</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha">
+            </div>
+            
+            <div class="form-group">
+                <label for="transporte">Transporte:</label>
+                <select id="transporte">
+                    <option value="">Selecciona un transporte</option>
+                    <option value="avión">Avión</option>
+                    <option value="tren">Tren</option>
+                    <option value="autobús">Autobús</option>
+                    <option value="crucero">Crucero</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="personas">Número de personas:</label>
+                <input type="number" id="personas" min="1" value="1">
+            </div>
+            
+            <button id="btn-registrar">Registrar Destino</button>
+        </div>
+        
+        <div class="itinerario-container">
+            <h2>Itinerario de Viaje</h2>
+            <button id="btn-mostrar">Mostrar Itinerario</button>
+            <div id="itinerario-lista"></div>
+            <div id="costo-total"></div>
+        </div>
+    </div>
+    
+    <!-- Importamos solo el módulo principal -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>
