@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch vs Axios - Rick & Morty API</title>
+    <!-- CDN de Axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <!-- CSS externo -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Fetch vs Axios</h1>
+        <p class="subtitle">Comparación de métodos para consumir la API de Rick & Morty</p>
+        
+        <div class="controls">
+            <button id="fetch-btn" class="btn btn-fetch">
+                📡 Cargar con Fetch
+            </button>
+            <button id="axios-btn" class="btn btn-axios">
+                ⚡ Cargar con Axios
+            </button>
+        </div>
+
+        <div id="method-info"></div>
+        <div id="stats-container"></div>
+        <div id="data-container"></div>
+    </div>
+
+    <!-- JavaScript externo -->
+    <script src="script.js"></script>
+</body>
+</html>
