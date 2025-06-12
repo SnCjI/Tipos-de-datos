@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Eventos - DevF</title>
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input.error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .form-group input.success {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .checkbox-item:hover,
+        .radio-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkbox-item input,
+        .radio-item input {
+            margin-right: 10px;
+            width: auto;
+            cursor: pointer;
+        }
+
+        .checkbox-item input:checked + span,
+        .radio-item input:checked + span {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .file-upload-label.has-file {
+            background: #d4edda;
+            border-color: #27ae60;
+            color: #155724;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #27ae60;
+            font-size: 0.9em;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 5px;
+            display: none;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .form-progress {
+            height: 4px;
+            background: #e1e5e9;
+            border-radius: 2px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .form-progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .checkbox-group,
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .checkbox-item,
+            .radio-item {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Registro de Eventos</h1>
+            <p>Únete a nuestros increíbles eventos y vive experiencias únicas</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-progress">
+                <div class="form-progress-bar" id="progressBar"></div>
+            </div>
+            
+            <form id="registroEvento">
+                <div class="form-group">
+                    <label for="nombre">Nombre completo *</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Ingresa tu nombre completo">
+                    <div class="error-message" id="nombreError"></div>
+                    <div class="success-message" id="nombreSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo">Correo electrónico *</label>
+                    <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+                    <div class="error-message" id="correoError"></div>
+                    <div class="success-message" id="correoSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono *</label>
+                    <input type="tel" id="telefono" name="telefono" required placeholder="555-123-4567">
+                    <div class="error-message" id="telefonoError"></div>
+                    <div class="success-message" id="telefonoSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="edad">Edad *</label>
+                    <input type="number" id="edad" name="edad" required placeholder="Ingresa tu edad" min="16" max="100">
+                    <div class="error-message" id="edadError"></div>
+                    <div class="success-message" id="edadSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Intereses (selecciona al menos uno) *</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="intereses" value="tecnologia" id="int-tech">
+                            <span>🔬 Tecnología</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="intereses" value="negocios" id="int-business">
+                            <span>💼 Negocios</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="intereses" value="arte" id="int-art">
+                            <span>🎨 Arte</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="intereses" value="deportes" id="int-sports">
+                            <span>⚽ Deportes</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="intereses" value="musica" id="int-music">
+                            <span>🎵 Música</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="interesesError"></div>
+                    <div class="success-message" id="interesesSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Horario preferido *</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" name="horario" value="mañana" id="hor-morning" required>
+                            <span>🌅 Mañana (9:00 - 12:00)</span>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="horario" value="tarde" id="hor-afternoon">
+                            <span>☀️ Tarde (14:00 - 17:00)</span>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="horario" value="noche" id="hor-evening">
+                            <span>🌙 Noche (19:00 - 22:00)</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="horarioError"></div>
+                    <div class="success-message" id="horarioSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha">Fecha del evento *</label>
+                    <input type="date" id="fecha" name="fecha" required>
+                    <div class="error-message" id="fechaError"></div>
+                    <div class="success-message" id="fechaSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora">Hora preferida *</label>
+                    <input type="time" id="hora" name="hora" required>
+                    <div class="error-message" id="horaError"></div>
+                    <div class="success-message" id="horaSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comentarios">Comentarios adicionales</label>
+                    <textarea id="comentarios" name="comentarios" rows="4" style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-family: inherit; font-size: 16px; resize: vertical;" placeholder="¿Algo más que te gustaría contarnos?"></textarea>
+                    <div class="error-message" id="comentariosError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Documento de identificación (opcional)</label>
+                    <div class="file-upload">
+                        <input type="file" id="archivo" name="archivo" accept=".pdf,.jpg,.jpeg,.png">
+                        <label for="archivo" class="file-upload-label" id="fileLabel">
+                            📁 Haz clic aquí para subir tu identificación
+                            <br><small>Formatos: PDF, JPG, PNG (máx. 5MB)</small>
+                        </label>
+                    </div>
+                    <div class="error-message" id="archivoError"></div>
+                    <div class="success-message" id="archivoSuccess"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Registrarse al Evento
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Clase para manejar el formulario
+        class FormularioEventos {
+            constructor() {
+                this.form = document.getElementById('registroEvento');
+                this.progressBar = document.getElementById('progressBar');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.fileLabel = document.getElementById('fileLabel');
+                
+                this.initializeEventListeners();
+                this.setMinDate();
+                this.updateProgress();
+            }
+
+            initializeEventListeners() {
+                // Evento principal de envío
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                
+                // Validación en tiempo real
+                const inputs = this.form.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('blur', () => this.validateField(input));
+                    input.addEventListener('input', () => {
+                        this.clearFieldValidation(input);
+                        this.updateProgress();
+                    });
+                });
+
+                // Manejo de archivo
+                document.getElementById('archivo').addEventListener('change', (e) => this.handleFileUpload(e));
+                
+                // Validación de checkboxes e intereses
+                const checkboxes = this.form.querySelectorAll('input[name="intereses"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        this.validateIntereses();
+                        this.updateProgress();
+                    });
+                });
+
+                // Validación de radio buttons
+                const radios = this.form.querySelectorAll('input[name="horario"]');
+                radios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        this.validateHorario();
+                        this.updateProgress();
+                    });
+                });
+            }
+
+            setMinDate() {
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                const fechaInput = document.getElementById('fecha');
+                fechaInput.min = tomorrow.toISOString().split('T')[0];
+            }
+
+            validateField(field) {
+                const fieldName = field.name || field.id;
+                let isValid = true;
+
+                switch(fieldName) {
+                    case 'nombre':
+                        isValid = this.validateNombre(field.value);
+                        break;
+                    case 'correo':
+                        isValid = this.validateCorreo(field.value);
+                        break;
+                    case 'telefono':
+                        isValid = this.validateTelefono(field.value);
+                        break;
+                    case 'edad':
+                        isValid = this.validateEdad(field.value);
+                        break;
+                    case 'fecha':
+                        isValid = this.validateFecha(field.value);
+                        break;
+                    case 'hora':
+                        isValid = this.validateHora(field.value);
+                        break;
+                    case 'comentarios':
+                        isValid = this.validateComentarios(field.value);
+                        break;
+                }
+
+                return isValid;
+            }
+
+            validateNombre(nombre) {
+                const errorEl = document.getElementById('nombreError');
+                const successEl = document.getElementById('nombreSuccess');
+                const input = document.getElementById('nombre');
+
+                if (!nombre.trim()) {
+                    this.showError(errorEl, 'El nombre es obligatorio');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                if (nombre.trim().length < 2) {
+                    this.showError(errorEl, 'El nombre debe tener al menos 2 caracteres');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) {
+                    this.showError(errorEl, 'El nombre solo puede contener letras y espacios');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                if (nombre.trim().split(' ').length < 2) {
+                    this.showError(errorEl, 'Por favor ingresa tu nombre completo (nombre y apellido)');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                this.showSuccess(successEl, '✓ Nombre válido');
+                this.setFieldState(input, 'success');
+                return true;
+            }
+
+            validateCorreo(correo) {
+                const errorEl = document.getElementById('correoError');
+                const successEl = document.getElementById('correoSuccess');
+                const input = document.getElementById('correo');
+
+                if (!correo.trim()) {
+                    this.showError(errorEl, 'El correo electrónico es obligatorio');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(correo)) {
+                    this.showError(errorEl, 'Por favor ingresa un correo electrónico válido');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                // Validación adicional: dominios comunes
+                const dominiosComunes = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com'];
+                const dominio = correo.split('@')[1];
+                if (!dominiosComunes.includes(dominio)) {
+                    this.showError(errorEl, 'Por favor verifica el dominio de tu correo electrónico');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                this.showSuccess(successEl, '✓ Correo válido');
+                this.setFieldState(input, 'success');
+                return true;
+            }
+
+            validateTelefono(telefono) {
+                const errorEl = document.getElementById('telefonoError');
+                const successEl = document.getElementById('telefonoSuccess');
+                const input = document.getElementById('telefono');
+
+                if (!telefono.trim()) {
+                    this.showError(errorEl, 'El teléfono es obligatorio');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                // Remover espacios, guiones y paréntesis para validación
+                const telefonoLimpio = telefono.replace(/[\s\-\(\)]/g, '');
+                
+                if (!/^\d{10}$/.test(telefonoLimpio)) {
+                    this.showError(errorEl, 'El teléfono debe tener exactamente 10 dígitos');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                // Validación adicional: no puede empezar con 0 o 1
+                if (telefonoLimpio.startsWith('0') || telefonoLimpio.startsWith('1')) {
+                    this.showError(errorEl, 'El teléfono no puede empezar con 0 o 1');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                this.showSuccess(successEl, '✓ Teléfono válido');
+                this.setFieldState(input, 'success');
+                return true;
+            }
+
+            validateEdad(edad) {
+                const errorEl = document.getElementById('edadError');
+                const successEl = document.getElementById('edadSuccess');
+                const input = document.getElementById('edad');
+
+                if (!edad) {
+                    this.showError(errorEl, 'La edad es obligatoria');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                const edadNum = parseInt(edad);
+                if (edadNum < 16) {
+                    this.showError(errorEl, 'Debes ser mayor de 16 años para registrarte');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                if (edadNum > 100) {
+                    this.showError(errorEl, 'Por favor verifica tu edad');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                this.showSuccess(successEl, '✓ Edad válida');
+                this.setFieldState(input, 'success');
+                return true;
+            }
+
+            validateIntereses() {
+                const errorEl = document.getElementById('interesesError');
+                const successEl = document.getElementById('interesesSuccess');
+                const checkboxes = document.querySelectorAll('input[name="intereses"]:checked');
+
+                if (checkboxes.length === 0) {
+                    this.showError(errorEl, 'Debes seleccionar al menos un interés');
+                    return false;
+                }
+
+                this.showSuccess(successEl, `✓ ${checkboxes.length} interés(es) seleccionado(s)`);
+                return true;
+            }
+
+            validateHorario() {
+                const errorEl = document.getElementById('horarioError');
+                const successEl = document.getElementById('horarioSuccess');
+                const horario = document.querySelector('input[name="horario"]:checked');
+
+                if (!horario) {
+                    this.showError(errorEl, 'Debes seleccionar un horario');
+                    return false;
+                }
+
+                this.showSuccess(successEl, '✓ Horario seleccionado');
+                return true;
+            }
+
+            validateFecha(fecha) {
+                const errorEl = document.getElementById('fechaError');
+                const successEl = document.getElementById('fechaSuccess');
+                const input = document.getElementById('fecha');
+
+                if (!fecha) {
+                    this.showError(errorEl, 'La fecha es obligatoria');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                const fechaSeleccionada = new Date(fecha);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+
+                if (fechaSeleccionada <= hoy) {
+                    this.showError(errorEl, 'La fecha debe ser posterior a hoy');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                // Validación adicional: no más de 1 año en el futuro
+                const unAnoFuturo = new Date();
+                unAnoFuturo.setFullYear(unAnoFuturo.getFullYear() + 1);
+                
+                if (fechaSeleccionada > unAnoFuturo) {
+                    this.showError(errorEl, 'La fecha no puede ser más de un año en el futuro');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                this.showSuccess(successEl, '✓ Fecha válida');
+                this.setFieldState(input, 'success');
+                return true;
+            }
+
+            validateHora(hora) {
+                const errorEl = document.getElementById('horaError');
+                const successEl = document.getElementById('horaSuccess');
+                const input = document.getElementById('hora');
+
+                if (!hora) {
+                    this.showError(errorEl, 'La hora es obligatoria');
+                    this.setFieldState(input, 'error');
+                    return false;
+                }
+
+                this.showSuccess(successEl, '✓ Hora válida');
+                this.setFieldState(input, 'success');
+                return true;
+            }
+
+            validateComentarios(comentarios) {
+                const errorEl = document.getElementById('comentariosError');
+
+                if (comentarios && comentarios.length > 500) {
+                    this.showError(errorEl, 'Los comentarios no pueden exceder 500 caracteres');
+                    return false;
+                }
+
+                this.hideError(errorEl);
+                return true;
+            }
+
+            handleFileUpload(event) {
+                const file = event.target.files[0];
+                const errorEl = document.getElementById('archivoError');
+                const successEl = document.getElementById('archivoSuccess');
+
+                if (!file) {
+                    this.fileLabel.textContent = '📁 Haz clic aquí para subir tu identificación';
+                    this.fileLabel.classList.remove('has-file');
+                    return;
+                }
+
+                // Validar tamaño (5MB máximo)
+                if (file.size > 5 * 1024 * 1024) {
+                    this.showError(errorEl, 'El archivo no puede ser mayor a 5MB');
+                    event.target.value = '';
+                    return;
+                }
+
+                // Validar tipo
+                const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                if (!allowedTypes.includes(file.type)) {
+                    this.showError(errorEl, 'Solo se permiten archivos PDF, JPG o PNG');
+                    event.target.value = '';
+                    return;
+                }
+
+                this.fileLabel.textContent = `📄 ${file.name}`;
+                this.fileLabel.classList.add('has-file');
+                this.showSuccess(successEl, '✓ Archivo cargado correctamente');
+                this.hideError(errorEl);
+            }
+
+            updateProgress() {
+                const requiredFields = ['nombre', 'correo', 'telefono', 'edad', 'fecha', 'hora'];
+                const checkboxes = document.querySelectorAll('input[name="intereses"]:checked');
+                const horario = document.querySelector('input[name="horario"]:checked');
+                
+                let completedFields = 0;
+                let totalFields = requiredFields.length + 2; // +2 por intereses y horario
+
+                // Contar campos completados
+                requiredFields.forEach(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (field && field.value.trim()) {
+                        completedFields++;
+                    }
+                });
+
+                if (checkboxes.length > 0) completedFields++;
+                if (horario) completedFields++;
+
+                const percentage = (completedFields / totalFields) * 100;
+                this.progressBar.style.width = `${percentage}%`;
+            }
+
+            showError(element, message) {
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+
+            showSuccess(element, message) {
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+
+            hideError(element) {
+                element.style.display = 'none';
+            }
+
+            hideSuccess(element) {
+                element.style.display = 'none';
+            }
+
+            setFieldState(input, state) {
+                input.classList.remove('error', 'success');
+                if (state === 'error' || state === 'success') {
+                    input.classList.add(state);
+                }
+            }
+
+            clearFieldValidation(input) {
+                const fieldName = input.name || input.id;
+                const errorEl = document.getElementById(`${fieldName}Error`);
+                const successEl = document.getElementById(`${fieldName}Success`);
+                
+                if (errorEl) this.hideError(errorEl);
+                if (successEl) this.hideSuccess(
