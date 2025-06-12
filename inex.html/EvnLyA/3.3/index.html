@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas - Restaurante</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Sistema de Reservas</h1>
+        
+        <div class="status">
+            <strong>Estado del Restaurante:</strong>
+            <div id="mesasDisponibles">Mesas disponibles: 10</div>
+            <div>Horario: 18:00 - 23:00</div>
+        </div>
+
+        <div class="demo-buttons">
+            <button class="demo-btn" onclick="llenarFormularioExito()">
+                Demo Exitosa
+            </button>
+            <button class="demo-btn error-demo" onclick="llenarFormularioError()">
+                Demo Error
+            </button>
+        </div>
+
+        <form id="reservaForm">
+            <div class="form-group">
+                <label for="nombreCliente">Nombre del Cliente:</label>
+                <input type="text" id="nombreCliente" name="nombreCliente" required 
+                       placeholder="Ingresa tu nombre completo">
+            </div>
+
+            <div class="form-group">
+                <label for="mesasSolicitadas">Número de Mesas:</label>
+                <input type="number" id="mesasSolicitadas" name="mesasSolicitadas" 
+                       min="1" max="15" required placeholder="¿Cuántas mesas necesitas?">
+            </div>
+
+            <button type="submit" class="btn" id="btnReservar">
+                Hacer Reserva
+            </button>
+        </form>
+
+        <div id="resultado" class="resultado"></div>
+
+        <div class="code-section">
+            <div class="code-title">💻 Implementación del Sistema (Async/Await y Promesas)</div>
+            <pre><code>// Configuración del restaurante
+const MESAS_DISPONIBLES = 10;
+
+// 1. Verificar disponibilidad de mesas (Promesa)
+function verificarDisponibilidad(mesasSolicitadas) {
+    return new Promise((resolve, reject) => {
+        // Simular tiempo de verificación en base de datos
+        setTimeout(() => {
+            if (mesasSolicitadas <= MESAS_DISPONIBLES) {
+                resolve(`✅ Hay ${mesasSolicitadas} mesa(s) disponible(s)`);
+            } else {
+                reject(`❌ Solo hay ${MESAS_DISPONIBLES} mesas disponibles`);
+            }
+        }, 1000);
+    });
+}
+
+// 2. Simular envío de confirmación por correo
+function enviarConfirmacionReserva(nombreCliente) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            // 80% de probabilidad de éxito
+            const exito = Math.random() > 0.2;
+            
+            if (exito) {
+                resolve(`📧 Correo enviado exitosamente a ${nombreCliente}`);
+            } else {
+                reject(`❌ Error al enviar correo a ${nombreCliente}`);
+            }
+        }, 1500);
+    });
+}
+
+// 3. Función principal con async/await
+async function hacerReserva(nombreCliente, mesasSolicitadas) {
+    try {
+        // Verificar disponibilidad
+        const disponibilidad = await verificarDisponibilidad(mesasSolicitadas);
+        
+        // Si hay disponibilidad, enviar confirmación
+        const confirmacion = await enviarConfirmacionReserva(nombreCliente);
+        
+        // Reserva exitosa
+        return {
+            exito: true,
+            mensaje: `🎉 ¡Reserva confirmada!\\n${disponibilidad}\\n${confirmacion}`
+        };
+        
+    } catch (error) {
+        // Manejo de errores
+        return {
+            exito: false,
+            mensaje: `❌ Error en la reserva: ${error}`
+        };
+    }
+}</code></pre>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
