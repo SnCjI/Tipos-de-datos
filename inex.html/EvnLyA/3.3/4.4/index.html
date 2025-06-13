@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Eventos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Registro de Evento</h1>
+            <p>Completa el formulario para registrarte en nuestro evento</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="success-message" id="successMessage">
+                <h3>¡Registro Exitoso!</h3>
+                <p>Gracias por registrarte. Te enviaremos más información a tu correo electrónico.</p>
+            </div>
+
+            <form id="registroEvento" novalidate>
+                <div class="form-group">
+                    <label for="nombre" class="required">Nombre completo</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu nombre completo">
+                    <div class="error-message" id="errorNombre"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo" class="required">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" placeholder="ejemplo@correo.com">
+                    <div class="error-message" id="errorCorreo"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono" class="required">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" placeholder="10 dígitos (ej: 5512345678)">
+                    <div class="error-message" id="errorTelefono"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Intereses (selecciona al menos uno)</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tech" name="intereses" value="tecnologia">
+                            <span>🔧 Tecnología</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="business" name="intereses" value="negocios">
+                            <span>💼 Negocios</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="art" name="intereses" value="arte">
+                            <span>🎨 Arte</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sports" name="intereses" value="deportes">
+                            <span>⚽ Deportes</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="errorIntereses"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Horario preferido</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="manana" name="horario" value="manana">
+                            <span>🌅 Mañana (9:00 - 12:00)</span>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="tarde" name="horario" value="tarde">
+                            <span>☀️ Tarde (13:00 - 17:00)</span>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="noche" name="horario" value="noche">
+                            <span>🌙 Noche (18:00 - 21:00)</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="errorHorario"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha" class="required">Fecha del evento</label>
+                    <input type="date" id="fecha" name="fecha">
+                    <div class="error-message" id="errorFecha"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora" class="required">Hora preferida</label>
+                    <input type="time" id="hora" name="hora">
+                    <div class="error-message" id="errorHora"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="archivo">Documento de identificación (opcional)</label>
+                    <div class="file-upload-container">
+                        <div class="file-upload-btn" onclick="document.getElementById('archivo').click()">
+                            <div class="file-upload-text">
+                                📄 Haz clic para seleccionar un archivo<br>
+                                <small>Formatos permitidos: PDF, JPG, PNG (máx. 5MB)</small>
+                            </div>
+                        </div>
+                        <input type="file" id="archivo" name="archivo" style="display: none;" accept=".pdf,.jpg,.jpeg,.png">
+                        <div class="file-selected" id="fileSelected" style="display: none;"></div>
+                    </div>
+                    <div class="error-message" id="errorArchivo"></div>
+                </div>
+
+                <button type="submit" class="submit-btn">Registrarse al Evento</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
