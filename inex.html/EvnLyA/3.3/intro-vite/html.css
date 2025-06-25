@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adivina el número</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Adivina el número</h1>
+        <p class="subtitle">¡La computadora ha generado un número secreto! <span class="emoji">🤔</span></p>
+        
+        <div class="difficulty-selector">
+            <label for="dificultad">Dificultad:</label>
+            <select id="dificultad">
+                <option value="easy">Fácil (1-50)</option>
+                <option value="medium" selected>Medio (1-100)</option>
+                <option value="hard">Difícil (1-500)</option>
+            </select>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="intentos-count">0</div>
+                <div class="stat-label">Intentos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="rango-display">1-100</div>
+                <div class="stat-label">Rango</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="mejor-puntaje">-</div>
+                <div class="stat-label">Mejor</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <input type="number" id="numero" placeholder="Tu número aquí" min="1" max="100">
+            <button id="adivinar">🚀 Adivinar</button>
+            <button class="reset-btn" id="reiniciar">🔄 Nuevo Juego</button>
+        </div>
+        
+        <div id="mensaje"></div>
+
+        <div class="history" id="historial-container" style="display: none;">
+            <div class="history-title">📝 Historial de Intentos</div>
+            <div id="historial"></div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
