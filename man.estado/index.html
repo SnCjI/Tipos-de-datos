@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras Interactiva</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header con título y estadísticas -->
+        <div class="header">
+            <div class="title-section">
+                <i class="fas fa-shopping-cart"></i>
+                <h1>Lista de Compras</h1>
+            </div>
+            
+            <!-- Estadísticas -->
+            <div class="stats">
+                <span class="stat-item">
+                    <div class="stat-dot stat-total"></div>
+                    Total: <span id="total-count">0</span>
+                </span>
+                <span class="stat-item">
+                    <div class="stat-dot stat-completed"></div>
+                    Completados: <span id="completed-count">0</span>
+                </span>
+                <span class="stat-item">
+                    <div class="stat-dot stat-pending"></div>
+                    Pendientes: <span id="pending-count">0</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Input para agregar productos -->
+        <div class="input-section">
+            <input 
+                type="text" 
+                id="nuevo-producto" 
+                placeholder="Escribe un producto..."
+                class="product-input"
+            >
+            <button id="agregar-btn" class="add-btn">
+                <i class="fas fa-plus"></i>
+                Agregar
+            </button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="pendientes">Pendientes</button>
+            <button class="filter-btn" data-filter="completados">Completados</button>
+        </div>
+
+        <!-- Lista de productos -->
+        <div class="products-container">
+            <ul id="productos-lista" class="products-list"></ul>
+            
+            <!-- Mensaje cuando no hay productos -->
+            <div id="empty-message" class="empty-message">
+                <i class="fas fa-shopping-cart empty-icon"></i>
+                <p>¡Tu lista está vacía!</p>
+                <p class="empty-subtitle">Agrega algunos productos para comenzar</p>
+            </div>
+
+            <!-- Mensaje cuando no hay productos en filtro -->
+            <div id="no-filter-message" class="empty-message" style="display: none;">
+                <p>No hay productos en esta categoría</p>
+            </div>
+        </div>
+
+        <!-- Acciones de limpieza -->
+        <div id="cleanup-actions" class="cleanup-actions" style="display: none;">
+            <button id="limpiar-completados" class="cleanup-btn cleanup-completed" style="display: none;">
+                <i class="fas fa-check"></i>
+                Limpiar Completados (<span id="completed-cleanup-count">0</span>)
+            </button>
+            <button id="limpiar-todo" class="cleanup-btn cleanup-all">
+                <i class="fas fa-times"></i>
+                Limpiar Todo
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
