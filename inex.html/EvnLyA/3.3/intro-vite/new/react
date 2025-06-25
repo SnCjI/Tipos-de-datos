@@ -1,0 +1,203 @@
+import React, { useState } from 'react';
+import { User, Briefcase, Mail, MapPin, Github, Linkedin, Heart } from 'lucide-react';
+
+// Componente para información de contacto
+function ContactoInfo({ icono: Icono, texto, enlace }) {
+  const [hover, setHover] = useState(false);
+  
+  const contenido = (
+    <div 
+      className={`flex items-center gap-2 p-2 rounded-lg transition-all duration-300 cursor-pointer ${
+        hover ? 'bg-blue-50 text-blue-600 transform scale-105' : 'text-gray-600'
+      }`}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <Icono size={16} />
+      <span className="text-sm">{texto}</span>
+    </div>
+  );
+
+  return enlace ? (
+    <a href={enlace} target="_blank" rel="noopener noreferrer">
+      {contenido}
+    </a>
+  ) : contenido;
+}
+
+// Componente para habilidades
+function Habilidad({ nombre, nivel }) {
+  const [mostrarNivel, setMostrarNivel] = useState(false);
+  
+  return (
+    <div 
+      className="bg-gray-100 px-3 py-1 rounded-full text-sm cursor-pointer transition-all duration-300 hover:bg-blue-100 hover:text-blue-700"
+      onMouseEnter={() => setMostrarNivel(true)}
+      onMouseLeave={() => setMostrarNivel(false)}
+    >
+      {mostrarNivel ? `${nombre} (${nivel}%)` : nombre}
+    </div>
+  );
+}
+
+// Componente principal de la tarjeta
+function Tarjeta() {
+  // Estado para manejar si la tarjeta está volteada
+  const [volteada, setVolteada] = useState(false);
+  const [likes, setLikes] = useState(42);
+  const [liked, setLiked] = useState(false);
+
+  // Información estática de la tarjeta
+  const perfil = {
+    nombre: "Ana Pérez",
+    profesion: "Desarrolladora Full Stack",
+    mensaje: "¡Hola! Soy desarrolladora apasionada por crear experiencias web increíbles.",
+    ubicacion: "Ciudad de México, México",
+    email: "ana.perez@email.com",
+    github: "https://github.com/anaperez",
+    linkedin: "https://linkedin.com/in/anaperez",
+    habilidades: [
+      { nombre: "React", nivel: 90 },
+      { nombre: "JavaScript", nivel: 85 },
+      { nombre: "Node.js", nivel: 80 },
+      { nombre: "CSS", nivel: 88 },
+      { nombre: "Python", nivel: 75 }
+    ],
+    experiencia: "3 años de experiencia",
+    proyectos: "25+ proyectos completados"
+  };
+
+  const manejarLike = () => {
+    if (!liked) {
+      setLikes(likes + 1);
+      setLiked(true);
+    } else {
+      setLikes(likes - 1);
+      setLiked(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+      {/* Contenedor principal con efecto de volteo */}
+      <div 
+        className={`relative w-80 h-96 transition-transform duration-700 transform-style-preserve-3d ${
+          volteada ? 'rotate-y-180' : ''
+        }`}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        
+        {/* Cara frontal de la tarjeta */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden bg-white rounded-2xl shadow-xl border border-gray-200 p-6 flex flex-col"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          {/* Header con foto de perfil */}
+          <div className="text-center mb-4">
+            <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <User size={32} className="text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800">{perfil.nombre}</h2>
+            <div className="flex items-center justify-center gap-1 text-blue-600 mt-1">
+              <Briefcase size={14} />
+              <span className="text-sm font-medium">{perfil.profesion}</span>
+            </div>
+          </div>
+
+          {/* Mensaje de presentación */}
+          <p className="text-gray-600 text-center text-sm mb-4 leading-relaxed">
+            {perfil.mensaje}
+          </p>
+
+          {/* Información de contacto */}
+          <div className="space-y-1 mb-4">
+            <ContactoInfo icono={MapPin} texto={perfil.ubicacion} />
+            <ContactoInfo icono={Mail} texto={perfil.email} enlace={`mailto:${perfil.email}`} />
+            <ContactoInfo icono={Github} texto="GitHub" enlace={perfil.github} />
+            <ContactoInfo icono={Linkedin} texto="LinkedIn" enlace={perfil.linkedin} />
+          </div>
+
+          {/* Botones de acción */}
+          <div className="mt-auto space-y-2">
+            <button
+              onClick={() => setVolteada(!volteada)}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
+            >
+              Ver más detalles
+            </button>
+            
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={manejarLike}
+                className={`flex items-center gap-1 px-3 py-1 rounded-full transition-all duration-300 ${
+                  liked ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600 hover:bg-red-50'
+                }`}
+              >
+                <Heart size={14} className={liked ? 'fill-current' : ''} />
+                <span className="text-sm">{likes}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Cara posterior de la tarjeta */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden bg-white rounded-2xl shadow-xl border border-gray-200 p-6 flex flex-col rotate-y-180"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Habilidades Técnicas</h3>
+            <div className="flex flex-wrap gap-2 justify-center mb-4">
+              {perfil.habilidades.map((habilidad, index) => (
+                <Habilidad 
+                  key={index} 
+                  nombre={habilidad.nombre} 
+                  nivel={habilidad.nivel} 
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-gray-800 mb-2">Estadísticas</h4>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex justify-between">
+                <span>Experiencia:</span>
+                <span className="font-medium">{perfil.experiencia}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Proyectos:</span>
+                <span className="font-medium">{perfil.proyectos}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-auto">
+            <button
+              onClick={() => setVolteada(!volteada)}
+              className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
+            >
+              Volver atrás
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Información adicional fuera de la tarjeta */}
+      <div className="absolute bottom-4 text-center text-gray-500 text-sm">
+        <p>Hecho con React ⚛️ | Haz hover sobre las habilidades para ver el nivel</p>
+      </div>
+    </div>
+  );
+}
+
+// Componente principal de la aplicación
+function App() {
+  return (
+    <div>
+      <Tarjeta />
+    </div>
+  );
+}
+
+export default App;
