@@ -1,0 +1,29 @@
+{
+  "name": "adivina-el-numero",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Juego de adivinanza de números con Vite y Vanilla JavaScript",
+  "author": "Tu Nombre",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "vite",
+    "vanilla-js",
+    "game",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "tu-repositorio-aqui"
+  },
+  "license": "MIT"
+}
