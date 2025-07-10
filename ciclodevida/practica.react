@@ -1,0 +1,401 @@
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Rocket, Fuel, Globe, MapPin, Edit2, Trash2, Save, X } from 'lucide-react';
+
+// Componente Planeta
+function Planeta({ nombre, descripcion, imagen, onDelete, onEdit }) {
+  useEffect(() => {
+    console.log(`¡El planeta ${nombre} ha aparecido!`); // Montaje
+    return () => {
+      console.log(`¡El planeta ${nombre} ha desaparecido!`); // Desmontaje
+    };
+  }, [nombre]);
+
+  return (
+    <div className="bg-gradient-to-br from-purple-800 to-blue-900 p-6 rounded-lg shadow-lg border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300">
+      <div className="flex justify-between items-start mb-4">
+        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+          <Globe className="text-purple-400" size={20} />
+          {nombre}
+        </h3>
+        <div className="flex gap-2">
+          <button
+            onClick={onEdit}
+            className="text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            <Edit2 size={16} />
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-red-400 hover:text-red-300 transition-colors"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+      
+      <p className="text-purple-200 mb-4 leading-relaxed">{descripcion}</p>
+      
+      {imagen && (
+        <img
+          src={imagen}
+          alt={nombre}
+          className="w-full h-32 object-cover rounded-lg border border-purple-500/30"
+        />
+      )}
+    </div>
+  );
+}
+
+// Componente Formulario de Planeta
+function FormularioPlaneta({ onSubmit, onCancel, planetaEditando }) {
+  const [nombre, setNombre] = useState(planetaEditando?.nombre || '');
+  const [descripcion, setDescripcion] = useState(planetaEditando?.descripcion || '');
+  const [imagen, setImagen] = useState(null);
+  const inputImagenRef = useRef(null);
+
+  const handleSubmit = () => {
+    if (!nombre.trim() || !descripcion.trim()) return;
+    
+    const nuevoPlaneta = {
+      id: planetaEditando?.id || Date.now(),
+      nombre,
+      descripcion,
+      imagen: imagen ? URL.createObjectURL(imagen) : planetaEditando?.imagen || null,
+    };
+    onSubmit(nuevoPlaneta);
+    
+    // Limpiar formulario solo si no estamos editando
+    if (!planetaEditando) {
+      setNombre('');
+      setDescripcion('');
+      setImagen(null);
+      if (inputImagenRef.current) {
+        inputImagenRef.current.value = '';
+      }
+    }
+  };
+
+  return (
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+      <h3 className="text-lg font-semibold text-white mb-4">
+        {planetaEditando ? 'Editar Planeta' : 'Registrar Nuevo Planeta'}
+      </h3>
+      
+      <div className="space-y-4">
+        <input
+          type="text"
+          placeholder="Nombre del planeta"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none"
+        />
+        
+        <textarea
+          placeholder="Descripción del planeta"
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          rows={3}
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none resize-none"
+        />
+        
+        <input
+          type="file"
+          onChange={(e) => setImagen(e.target.files[0])}
+          ref={inputImagenRef}
+          accept="image/*"
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+        />
+        
+        <div className="flex gap-3">
+          <button
+            onClick={handleSubmit}
+            disabled={!nombre.trim() || !descripcion.trim()}
+            className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <Save size={18} />
+            {planetaEditando ? 'Actualizar' : 'Guardar'}
+          </button>
+          
+          {planetaEditando && (
+            <button
+              onClick={onCancel}
+              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2"
+            >
+              <X size={18} />
+              Cancelar
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Componente Principal
+function App() {
+  // Estados del panel de control
+  const [distancia, setDistancia] = useState(0);
+  const [combustible, setCombustible] = useState(100);
+  const [estadoNave, setEstadoNave] = useState("En órbita");
+  const [planetasVisitados, setPlanetasVisitados] = useState([]);
+  
+  // Estados para la bitácora
+  const [planetasRegistrados, setPlanetasRegistrados] = useState([]);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [planetaEditando, setPlanetaEditando] = useState(null);
+  const [vistaActual, setVistaActual] = useState('panel'); // 'panel' o 'bitacora'
+
+  // Efecto de montaje del panel
+  useEffect(() => {
+    console.log("¡El panel de control está listo!"); // Montaje
+    
+    // Simulación de vuelo
+    const intervalo = setInterval(() => {
+      setCombustible(prev => {
+        const nuevoCombustible = Math.max(0, prev - 1);
+        return nuevoCombustible;
+      });
+      setDistancia(prev => prev + 10);
+    }, 1000);
+
+    return () => {
+      clearInterval(intervalo); // Desmontaje
+      console.log("El panel de control se ha apagado."); // Desmontaje
+    };
+  }, []);
+
+  // Efecto de actualización del combustible
+  useEffect(() => {
+    console.log("¡Combustible actualizado!"); // Actualización
+    
+    // Cambiar estado según el combustible
+    if (combustible <= 0) {
+      setEstadoNave("Sin combustible");
+    } else if (combustible <= 20) {
+      setEstadoNave("Combustible bajo");
+    } else if (combustible <= 50) {
+      setEstadoNave("Navegando");
+    } else {
+      setEstadoNave("En órbita");
+    }
+  }, [combustible]);
+
+  // Cálculo memoizado del mensaje de estado
+  const mensajeEstado = useMemo(() => {
+    const iconos = {
+      "En órbita": "🛸",
+      "Navegando": "🚀",
+      "Combustible bajo": "⚠️",
+      "Sin combustible": "🔴",
+      "Aterrizando": "🛬"
+    };
+    return `${iconos[estadoNave] || "🛸"} Estado: ${estadoNave}`;
+  }, [estadoNave]);
+
+  // Funciones del panel de control
+  const handleAterrizar = () => {
+    setEstadoNave("Aterrizando");
+    const nombresPlanetas = ["Kepler-442b", "Proxima Centauri b", "TRAPPIST-1e", "K2-18b", "TOI-715b"];
+    const planetaAleatorio = nombresPlanetas[Math.floor(Math.random() * nombresPlanetas.length)];
+    setPlanetasVisitados(prev => [...prev, planetaAleatorio]);
+    
+    // Volver al estado anterior después de 3 segundos
+    setTimeout(() => {
+      setEstadoNave(combustible > 50 ? "En órbita" : combustible > 20 ? "Navegando" : "Combustible bajo");
+    }, 3000);
+  };
+
+  const handleReabastecer = () => {
+    setCombustible(100);
+    setDistancia(0);
+  };
+
+  // Funciones de la bitácora
+  const handleGuardarPlaneta = (planeta) => {
+    if (planetaEditando) {
+      setPlanetasRegistrados(prev => 
+        prev.map(p => p.id === planeta.id ? planeta : p)
+      );
+      setPlanetaEditando(null);
+    } else {
+      setPlanetasRegistrados(prev => [...prev, planeta]);
+    }
+    setMostrarFormulario(false);
+  };
+
+  const handleEliminarPlaneta = (id) => {
+    setPlanetasRegistrados(prev => prev.filter(p => p.id !== id));
+  };
+
+  const handleEditarPlaneta = (planeta) => {
+    setPlanetaEditando(planeta);
+    setMostrarFormulario(true);
+  };
+
+  const handleCancelarEdicion = () => {
+    setPlanetaEditando(null);
+    setMostrarFormulario(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header con navegación */}
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+            <Rocket className="text-purple-400" size={36} />
+            Explorador Espacial
+          </h1>
+          
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setVistaActual('panel')}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                vistaActual === 'panel' 
+                  ? 'bg-purple-600 text-white' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Panel de Control
+            </button>
+            <button
+              onClick={() => setVistaActual('bitacora')}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                vistaActual === 'bitacora' 
+                  ? 'bg-purple-600 text-white' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Bitácora de Exploración
+            </button>
+          </div>
+        </div>
+
+        {/* Panel de Control */}
+        {vistaActual === 'panel' && (
+          <div className="space-y-6">
+            {/* Información del panel */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                  <MapPin className="text-blue-400" size={20} />
+                  Distancia
+                </h3>
+                <p className="text-3xl font-bold text-blue-400">{distancia.toLocaleString()} km</p>
+              </div>
+              
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                  <Fuel className="text-green-400" size={20} />
+                  Combustible
+                </h3>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-gray-700 rounded-full h-4">
+                    <div 
+                      className={`h-4 rounded-full transition-all duration-300 ${
+                        combustible > 50 ? 'bg-green-500' : 
+                        combustible > 20 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${combustible}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-2xl font-bold text-white">{combustible}%</span>
+                </div>
+              </div>
+              
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-2">Estado</h3>
+                <p className="text-xl font-bold text-purple-400">{mensajeEstado}</p>
+              </div>
+            </div>
+
+            {/* Controles */}
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button
+                onClick={handleAterrizar}
+                disabled={combustible <= 0 || estadoNave === "Aterrizando"}
+                className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              >
+                🛬 Aterrizar en Planeta
+              </button>
+              
+              <button
+                onClick={handleReabastecer}
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              >
+                ⛽ Reabastecer
+              </button>
+            </div>
+
+            {/* Planetas visitados */}
+            {planetasVisitados.length > 0 && (
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Planetas Visitados</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {planetasVisitados.map((planeta, index) => (
+                    <Planeta 
+                      key={index} 
+                      nombre={planeta} 
+                      descripcion="Planeta visitado durante la exploración"
+                      onDelete={() => setPlanetasVisitados(prev => prev.filter((_, i) => i !== index))}
+                      onEdit={() => {}}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Bitácora de Exploración */}
+        {vistaActual === 'bitacora' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">Bitácora de Exploración</h2>
+              <button
+                onClick={() => setMostrarFormulario(!mostrarFormulario)}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+              >
+                {mostrarFormulario ? <X size={18} /> : <Globe size={18} />}
+                {mostrarFormulario ? 'Cancelar' : 'Registrar Planeta'}
+              </button>
+            </div>
+
+            {/* Formulario */}
+            {mostrarFormulario && (
+              <FormularioPlaneta
+                onSubmit={handleGuardarPlaneta}
+                onCancel={handleCancelarEdicion}
+                planetaEditando={planetaEditando}
+              />
+            )}
+
+            {/* Lista de planetas registrados */}
+            {planetasRegistrados.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {planetasRegistrados.map((planeta) => (
+                  <Planeta
+                    key={planeta.id}
+                    nombre={planeta.nombre}
+                    descripcion={planeta.descripcion}
+                    imagen={planeta.imagen}
+                    onDelete={() => handleEliminarPlaneta(planeta.id)}
+                    onEdit={() => handleEditarPlaneta(planeta)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Globe className="mx-auto text-gray-500 mb-4" size={48} />
+                <p className="text-gray-400 text-lg">No hay planetas registrados en tu bitácora</p>
+                <p className="text-gray-500">¡Comienza a explorar y registra tus descubrimientos!</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
