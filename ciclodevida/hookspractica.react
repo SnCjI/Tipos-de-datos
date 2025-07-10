@@ -1,0 +1,472 @@
+import React, { useReducer, useRef, useCallback, useState, useEffect } from 'react';
+import { Package, Plus, Minus, ShoppingCart, Search, Filter, AlertCircle, CheckCircle } from 'lucide-react';
+
+// Reducer para el contador
+const counterReducer = (state, action) => {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { ...state, count: state.count + 1, history: [...state.history, `Incrementado a ${state.count + 1}`] };
+    case 'DECREMENT':
+      return { ...state, count: state.count - 1, history: [...state.history, `Decrementado a ${state.count - 1}`] };
+    case 'RESET':
+      return { ...state, count: 0, history: [...state.history, 'Contador reiniciado'] };
+    case 'SET_CUSTOM':
+      return { ...state, count: action.payload, history: [...state.history, `Establecido a ${action.payload}`] };
+    case 'CLEAR_HISTORY':
+      return { ...state, history: [] };
+    default:
+      return state;
+  }
+};
+
+// Reducer para el inventario
+const inventoryReducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD_ITEM':
+      const existingItem = state.items.find(item => item.id === action.payload.id);
+      if (existingItem) {
+        return {
+          ...state,
+          items: state.items.map(item =>
+            item.id === action.payload.id
+              ? { ...item, quantity: item.quantity + action.payload.quantity }
+              : item
+          ),
+          totalItems: state.totalItems + action.payload.quantity
+        };
+      }
+      return {
+        ...state,
+        items: [...state.items, { ...action.payload, id: Date.now() }],
+        totalItems: state.totalItems + action.payload.quantity
+      };
+    case 'UPDATE_QUANTITY':
+      const updatedItems = state.items.map(item =>
+        item.id === action.payload.id
+          ? { ...item, quantity: Math.max(0, action.payload.quantity) }
+          : item
+      );
+      return {
+        ...state,
+        items: updatedItems,
+        totalItems: updatedItems.reduce((sum, item) => sum + item.quantity, 0)
+      };
+    case 'REMOVE_ITEM':
+      const filteredItems = state.items.filter(item => item.id !== action.payload);
+      return {
+        ...state,
+        items: filteredItems,
+        totalItems: filteredItems.reduce((sum, item) => sum + item.quantity, 0)
+      };
+    case 'FILTER_ITEMS':
+      return { ...state, filter: action.payload };
+    case 'CLEAR_FILTER':
+      return { ...state, filter: '' };
+    default:
+      return state;
+  }
+};
+
+// Componente principal
+const AdvancedHooksProject = () => {
+  const [activeTab, setActiveTab] = useState('counter');
+  
+  // Estados usando useReducer
+  const [counterState, counterDispatch] = useReducer(counterReducer, {
+    count: 0,
+    history: []
+  });
+  
+  const [inventoryState, inventoryDispatch] = useReducer(inventoryReducer, {
+    items: [
+      { id: 1, name: 'Laptop', category: 'Electronics', quantity: 5, price: 999 },
+      { id: 2, name: 'Mouse', category: 'Electronics', quantity: 20, price: 25 },
+      { id: 3, name: 'Keyboard', category: 'Electronics', quantity: 15, price: 75 }
+    ],
+    totalItems: 40,
+    filter: ''
+  });
+  
+  // Referencias usando useRef
+  const customValueRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const itemNameRef = useRef(null);
+  const itemCategoryRef = useRef(null);
+  const itemQuantityRef = useRef(null);
+  const itemPriceRef = useRef(null);
+  
+  // Funciones optimizadas con useCallback
+  const handleIncrement = useCallback(() => {
+    counterDispatch({ type: 'INCREMENT' });
+  }, []);
+  
+  const handleDecrement = useCallback(() => {
+    counterDispatch({ type: 'DECREMENT' });
+  }, []);
+  
+  const handleReset = useCallback(() => {
+    counterDispatch({ type: 'RESET' });
+  }, []);
+  
+  const handleCustomValue = useCallback(() => {
+    const value = parseInt(customValueRef.current.value);
+    if (!isNaN(value)) {
+      counterDispatch({ type: 'SET_CUSTOM', payload: value });
+      customValueRef.current.value = '';
+    }
+  }, []);
+  
+  const handleClearHistory = useCallback(() => {
+    counterDispatch({ type: 'CLEAR_HISTORY' });
+  }, []);
+  
+  const handleAddItem = useCallback(() => {
+    const name = itemNameRef.current.value.trim();
+    const category = itemCategoryRef.current.value.trim();
+    const quantity = parseInt(itemQuantityRef.current.value);
+    const price = parseFloat(itemPriceRef.current.value);
+    
+    if (name && category && !isNaN(quantity) && quantity > 0 && !isNaN(price) && price > 0) {
+      inventoryDispatch({
+        type: 'ADD_ITEM',
+        payload: { name, category, quantity, price }
+      });
+      
+      // Limpiar campos
+      itemNameRef.current.value = '';
+      itemCategoryRef.current.value = '';
+      itemQuantityRef.current.value = '';
+      itemPriceRef.current.value = '';
+    }
+  }, []);
+  
+  const handleUpdateQuantity = useCallback((id, newQuantity) => {
+    inventoryDispatch({
+      type: 'UPDATE_QUANTITY',
+      payload: { id, quantity: newQuantity }
+    });
+  }, []);
+  
+  const handleRemoveItem = useCallback((id) => {
+    inventoryDispatch({ type: 'REMOVE_ITEM', payload: id });
+  }, []);
+  
+  const handleSearch = useCallback(() => {
+    const searchTerm = searchInputRef.current.value.toLowerCase();
+    inventoryDispatch({ type: 'FILTER_ITEMS', payload: searchTerm });
+  }, []);
+  
+  const handleClearFilter = useCallback(() => {
+    inventoryDispatch({ type: 'CLEAR_FILTER' });
+    searchInputRef.current.value = '';
+  }, []);
+  
+  // Filtrar items basado en el filtro
+  const filteredItems = inventoryState.items.filter(item =>
+    item.name.toLowerCase().includes(inventoryState.filter) ||
+    item.category.toLowerCase().includes(inventoryState.filter)
+  );
+  
+  const totalValue = filteredItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">
+          🚀 Proyecto Hooks Avanzados React
+        </h1>
+        
+        {/* Tabs */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-lg shadow-md p-1 flex">
+            <button
+              onClick={() => setActiveTab('counter')}
+              className={`px-6 py-3 rounded-md font-medium transition-all ${
+                activeTab === 'counter'
+                  ? 'bg-blue-500 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              🔢 Contador Interactivo
+            </button>
+            <button
+              onClick={() => setActiveTab('inventory')}
+              className={`px-6 py-3 rounded-md font-medium transition-all ${
+                activeTab === 'inventory'
+                  ? 'bg-blue-500 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              📦 Gestor de Inventario
+            </button>
+          </div>
+        </div>
+        
+        {/* Counter Tab */}
+        {activeTab === 'counter' && (
+          <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+              Contador con useReducer
+            </h2>
+            
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full text-white text-4xl font-bold mb-4">
+                {counterState.count}
+              </div>
+              
+              <div className="flex justify-center gap-4 mb-6">
+                <button
+                  onClick={handleDecrement}
+                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 flex items-center gap-2"
+                >
+                  <Minus size={20} />
+                  Decrementar
+                </button>
+                <button
+                  onClick={handleIncrement}
+                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 flex items-center gap-2"
+                >
+                  <Plus size={20} />
+                  Incrementar
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105"
+                >
+                  Reiniciar
+                </button>
+              </div>
+              
+              <div className="flex justify-center gap-4 mb-6">
+                <input
+                  ref={customValueRef}
+                  type="number"
+                  placeholder="Valor personalizado"
+                  className="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"
+                />
+                <button
+                  onClick={handleCustomValue}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all"
+                >
+                  Establecer
+                </button>
+              </div>
+            </div>
+            
+            {/* Historial */}
+            <div className="bg-gray-50 rounded-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-gray-800">Historial de Acciones</h3>
+                <button
+                  onClick={handleClearHistory}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                >
+                  Limpiar Historial
+                </button>
+              </div>
+              
+              <div className="max-h-40 overflow-y-auto">
+                {counterState.history.length === 0 ? (
+                  <p className="text-gray-500 text-center py-4">No hay acciones en el historial</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {counterState.history.map((action, index) => (
+                      <li key={index} className="flex items-center gap-2 text-sm text-gray-700">
+                        <CheckCircle size={16} className="text-green-500" />
+                        {action}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Inventory Tab */}
+        {activeTab === 'inventory' && (
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+              Gestor de Inventario
+            </h2>
+            
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div className="bg-blue-50 rounded-lg p-4 text-center">
+                <Package className="mx-auto mb-2 text-blue-500" size={32} />
+                <h3 className="font-semibold text-gray-800">Total Items</h3>
+                <p className="text-2xl font-bold text-blue-600">{inventoryState.totalItems}</p>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4 text-center">
+                <ShoppingCart className="mx-auto mb-2 text-green-500" size={32} />
+                <h3 className="font-semibold text-gray-800">Productos</h3>
+                <p className="text-2xl font-bold text-green-600">{filteredItems.length}</p>
+              </div>
+              <div className="bg-purple-50 rounded-lg p-4 text-center">
+                <AlertCircle className="mx-auto mb-2 text-purple-500" size={32} />
+                <h3 className="font-semibold text-gray-800">Valor Total</h3>
+                <p className="text-2xl font-bold text-purple-600">${totalValue.toFixed(2)}</p>
+              </div>
+            </div>
+            
+            {/* Search and Add Item */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Search */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Buscar Productos</h3>
+                <div className="flex gap-2 mb-4">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Buscar por nombre o categoría..."
+                    className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"
+                  />
+                  <button
+                    onClick={handleSearch}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all"
+                  >
+                    <Search size={20} />
+                  </button>
+                  <button
+                    onClick={handleClearFilter}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-all"
+                  >
+                    <Filter size={20} />
+                  </button>
+                </div>
+                {inventoryState.filter && (
+                  <p className="text-sm text-gray-600">
+                    Filtrando por: "<span className="font-medium">{inventoryState.filter}</span>"
+                  </p>
+                )}
+              </div>
+              
+              {/* Add Item */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Agregar Producto</h3>
+                <div className="space-y-3">
+                  <input
+                    ref={itemNameRef}
+                    type="text"
+                    placeholder="Nombre del producto"
+                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"
+                  />
+                  <input
+                    ref={itemCategoryRef}
+                    type="text"
+                    placeholder="Categoría"
+                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      ref={itemQuantityRef}
+                      type="number"
+                      placeholder="Cantidad"
+                      className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"
+                    />
+                    <input
+                      ref={itemPriceRef}
+                      type="number"
+                      step="0.01"
+                      placeholder="Precio"
+                      className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddItem}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                  >
+                    Agregar Producto
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Items List */}
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Inventario</h3>
+              {filteredItems.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No se encontraron productos</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map((item) => (
+                    <div key={item.id} className="bg-white rounded-lg p-4 shadow-sm border">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-semibold text-gray-800">{item.name}</h4>
+                        <button
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">Categoría: {item.category}</p>
+                      <p className="text-sm text-gray-600 mb-3">Precio: ${item.price.toFixed(2)}</p>
+                      
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                          className="bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                          disabled={item.quantity <= 0}
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="font-medium text-gray-800 min-w-[40px] text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                          className="bg-green-500 hover:bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t">
+                        <p className="text-sm font-medium text-gray-700">
+                          Total: ${(item.quantity * item.price).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {/* Explicación de Hooks */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mt-8">
+          <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+            🎯 Hooks Implementados
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-blue-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-3 text-blue-800">useReducer</h3>
+              <p className="text-sm text-gray-700">
+                Maneja estados complejos del contador e inventario con acciones predecibles y organizadas.
+              </p>
+            </div>
+            
+            <div className="bg-green-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-3 text-green-800">useRef</h3>
+              <p className="text-sm text-gray-700">
+                Accede directamente a elementos del DOM para inputs y formularios sin causar re-renders.
+              </p>
+            </div>
+            
+            <div className="bg-purple-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-3 text-purple-800">useCallback</h3>
+              <p className="text-sm text-gray-700">
+                Optimiza funciones evitando recreaciones innecesarias y mejorando el rendimiento.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdvancedHooksProject;
