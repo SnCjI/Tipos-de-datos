@@ -1,0 +1,638 @@
+import React, { useState, useEffect } from 'react';
+import { Calendar, Clock, User, UserCheck, Phone, Mail, MapPin, Heart, Stethoscope, Eye, Bone, Brain, Plus, Edit, Trash2, Search, Filter, Users, Activity, Bell, Settings, Home, LogOut, ArrowLeft, Save, X } from 'lucide-react';
+
+// Datos de ejemplo
+const initialDoctors = [
+  {
+    id: 1,
+    name: "Dr. Ana García",
+    specialty: "Cardiología",
+    phone: "+52 229 123 4567",
+    email: "ana.garcia@clinica.com",
+    schedule: "Lunes a Viernes 8:00 - 16:00",
+    icon: Heart,
+    color: "bg-red-500"
+  },
+  {
+    id: 2,
+    name: "Dr. Carlos López",
+    specialty: "Medicina General",
+    phone: "+52 229 234 5678",
+    email: "carlos.lopez@clinica.com",
+    schedule: "Lunes a Sábado 9:00 - 17:00",
+    icon: Stethoscope,
+    color: "bg-blue-500"
+  },
+  {
+    id: 3,
+    name: "Dra. María Rodríguez",
+    specialty: "Oftalmología",
+    phone: "+52 229 345 6789",
+    email: "maria.rodriguez@clinica.com",
+    schedule: "Martes a Sábado 10:00 - 18:00",
+    icon: Eye,
+    color: "bg-green-500"
+  },
+  {
+    id: 4,
+    name: "Dr. Juan Martínez",
+    specialty: "Ortopedia",
+    phone: "+52 229 456 7890",
+    email: "juan.martinez@clinica.com",
+    schedule: "Lunes a Viernes 7:00 - 15:00",
+    icon: Bone,
+    color: "bg-orange-500"
+  },
+  {
+    id: 5,
+    name: "Dra. Patricia Morales",
+    specialty: "Neurología",
+    phone: "+52 229 567 8901",
+    email: "patricia.morales@clinica.com",
+    schedule: "Miércoles a Domingo 11:00 - 19:00",
+    icon: Brain,
+    color: "bg-purple-500"
+  }
+];
+
+const initialPatients = [
+  {
+    id: 1,
+    name: "Pedro Hernández",
+    age: 45,
+    phone: "+52 229 111 2222",
+    email: "pedro.hernandez@email.com",
+    address: "Av. Independencia 123, Veracruz"
+  },
+  {
+    id: 2,
+    name: "Laura Sánchez",
+    age: 32,
+    phone: "+52 229 333 4444",
+    email: "laura.sanchez@email.com",
+    address: "Calle Morelos 456, Veracruz"
+  },
+  {
+    id: 3,
+    name: "Roberto Jiménez",
+    age: 28,
+    phone: "+52 229 555 6666",
+    email: "roberto.jimenez@email.com",
+    address: "Blvd. Ávila Camacho 789, Veracruz"
+  },
+  {
+    id: 4,
+    name: "Carmen Vásquez",
+    age: 55,
+    phone: "+52 229 777 8888",
+    email: "carmen.vasquez@email.com",
+    address: "Calle Juárez 321, Veracruz"
+  }
+];
+
+const initialAppointments = [
+  {
+    id: 1,
+    patientId: 1,
+    doctorId: 1,
+    date: "2025-07-16",
+    time: "09:00",
+    status: "scheduled",
+    reason: "Consulta de rutina",
+    notes: "Paciente con historial de hipertensión"
+  },
+  {
+    id: 2,
+    patientId: 2,
+    doctorId: 3,
+    date: "2025-07-17",
+    time: "14:30",
+    status: "scheduled",
+    reason: "Examen de la vista",
+    notes: "Revisión anual"
+  },
+  {
+    id: 3,
+    patientId: 3,
+    doctorId: 2,
+    date: "2025-07-15",
+    time: "11:00",
+    status: "completed",
+    reason: "Dolor de cabeza",
+    notes: "Medicamento recetado"
+  },
+  {
+    id: 4,
+    patientId: 4,
+    doctorId: 4,
+    date: "2025-07-15",
+    time: "15:30",
+    status: "scheduled",
+    reason: "Dolor de rodilla",
+    notes: "Posible lesión deportiva"
+  }
+];
+
+// Componente de Navegación
+const Navigation = ({ currentRoute, onNavigate, user }) => {
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'appointments', label: 'Citas', icon: Calendar },
+    { id: 'doctors', label: 'Doctores', icon: UserCheck },
+    { id: 'patients', label: 'Pacientes', icon: Users }
+  ];
+
+  return (
+    <nav className="bg-white shadow-lg border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-8">
+            <button 
+              onClick={() => onNavigate('dashboard')}
+              className="flex items-center space-x-2"
+            >
+              <div className="bg-blue-600 p-2 rounded-lg">
+                <Heart className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">MediCitas</span>
+            </button>
+            
+            <div className="hidden md:flex items-center space-x-6">
+              {navItems.map(item => {
+                const IconComponent = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => onNavigate(item.id)}
+                    className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-colors ${
+                      currentRoute === item.id
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <IconComponent className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+              <Bell className="h-5 w-5" />
+            </button>
+            <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+              <Settings className="h-5 w-5" />
+            </button>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-medium text-sm">
+                  {user.name.charAt(0)}
+                </span>
+              </div>
+              <span className="text-sm font-medium text-gray-700">{user.name}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+// Componente Dashboard
+const Dashboard = ({ appointments, doctors, patients, onNavigate }) => {
+  const todayAppointments = appointments.filter(apt => apt.date === "2025-07-15");
+  const completedToday = todayAppointments.filter(apt => apt.status === "completed").length;
+  const scheduledToday = todayAppointments.filter(apt => apt.status === "scheduled").length;
+  
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <div className="text-sm text-gray-500">
+          Martes, 15 de Julio 2025
+        </div>
+      </div>
+      
+      {/* Tarjetas de estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Citas Hoy</p>
+              <p className="text-2xl font-bold text-gray-900">{todayAppointments.length}</p>
+            </div>
+            <Calendar className="h-8 w-8 text-blue-500" />
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Completadas</p>
+              <p className="text-2xl font-bold text-gray-900">{completedToday}</p>
+            </div>
+            <Activity className="h-8 w-8 text-green-500" />
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Pendientes</p>
+              <p className="text-2xl font-bold text-gray-900">{scheduledToday}</p>
+            </div>
+            <Clock className="h-8 w-8 text-yellow-500" />
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Doctores</p>
+              <p className="text-2xl font-bold text-gray-900">{doctors.length}</p>
+            </div>
+            <UserCheck className="h-8 w-8 text-purple-500" />
+          </div>
+        </div>
+      </div>
+      
+      {/* Citas de hoy */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Citas de Hoy</h2>
+        </div>
+        <div className="p-6">
+          {todayAppointments.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No hay citas programadas para hoy</p>
+          ) : (
+            <div className="space-y-4">
+              {todayAppointments.map(appointment => {
+                const doctor = doctors.find(d => d.id === appointment.doctorId);
+                const patient = patients.find(p => p.id === appointment.patientId);
+                const IconComponent = doctor?.icon || Stethoscope;
+                
+                return (
+                  <div 
+                    key={appointment.id} 
+                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                    onClick={() => onNavigate('appointment-details', { id: appointment.id })}
+                  >
+                    <div className={`p-3 rounded-full ${doctor?.color || 'bg-gray-500'}`}>
+                      <IconComponent className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <h3 className="font-semibold text-gray-900">{patient?.name}</h3>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          appointment.status === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {appointment.status === 'completed' ? 'Completada' : 'Programada'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">{doctor?.name} - {doctor?.specialty}</p>
+                      <p className="text-sm text-gray-500">{appointment.time} - {appointment.reason}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Componente de Citas
+const Appointments = ({ appointments, doctors, patients, onNavigate, onDeleteAppointment, onUpdateAppointment }) => {
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const filteredAppointments = appointments.filter(appointment => {
+    const matchesFilter = filter === 'all' || appointment.status === filter;
+    const patient = patients.find(p => p.id === appointment.patientId);
+    const doctor = doctors.find(d => d.id === appointment.doctorId);
+    const matchesSearch = patient?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doctor?.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+  
+  const handleDeleteAppointment = (id) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar esta cita?')) {
+      onDeleteAppointment(id);
+    }
+  };
+  
+  const handleUpdateStatus = (id, newStatus) => {
+    const appointment = appointments.find(apt => apt.id === id);
+    if (appointment) {
+      onUpdateAppointment({ ...appointment, status: newStatus });
+    }
+  };
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Gestión de Citas</h1>
+        <button
+          onClick={() => onNavigate('appointment-form')}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Nueva Cita</span>
+        </button>
+      </div>
+      
+      {/* Filtros y búsqueda */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Buscar paciente o doctor..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Filter className="h-4 w-4 text-gray-500" />
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">Todas las citas</option>
+              <option value="scheduled">Programadas</option>
+              <option value="completed">Completadas</option>
+              <option value="cancelled">Canceladas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      {/* Lista de citas */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Paciente
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Doctor
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fecha y Hora
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Motivo
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredAppointments.map(appointment => {
+                const doctor = doctors.find(d => d.id === appointment.doctorId);
+                const patient = patients.find(p => p.id === appointment.patientId);
+                
+                return (
+                  <tr key={appointment.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                            <User className="h-5 w-5 text-gray-600" />
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{patient?.name}</div>
+                          <div className="text-sm text-gray-500">{patient?.phone}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{doctor?.name}</div>
+                      <div className="text-sm text-gray-500">{doctor?.specialty}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{appointment.date}</div>
+                      <div className="text-sm text-gray-500">{appointment.time}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <select
+                        value={appointment.status}
+                        onChange={(e) => handleUpdateStatus(appointment.id, e.target.value)}
+                        className={`px-2 py-1 text-xs font-semibold rounded-full border-none focus:ring-2 focus:ring-blue-500 ${
+                          appointment.status === 'completed' 
+                            ? 'bg-green-100 text-green-800'
+                            : appointment.status === 'scheduled'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        <option value="scheduled">Programada</option>
+                        <option value="completed">Completada</option>
+                        <option value="cancelled">Cancelada</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {appointment.reason}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => onNavigate('appointment-details', { id: appointment.id })}
+                          className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-100 rounded transition-colors"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => onNavigate('appointment-form', { id: appointment.id, isEdit: true })}
+                          className="text-yellow-600 hover:text-yellow-900 p-1 hover:bg-yellow-100 rounded transition-colors"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAppointment(appointment.id)}
+                          className="text-red-600 hover:text-red-900 p-1 hover:bg-red-100 rounded transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Componente de Detalles de Cita
+const AppointmentDetails = ({ appointmentId, appointments, doctors, patients, onNavigate }) => {
+  const appointment = appointments.find(apt => apt.id === appointmentId);
+  
+  if (!appointment) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Cita no encontrada</p>
+        <button
+          onClick={() => onNavigate('appointments')}
+          className="mt-4 text-blue-600 hover:text-blue-800"
+        >
+          Volver a Citas
+        </button>
+      </div>
+    );
+  }
+  
+  const doctor = doctors.find(d => d.id === appointment.doctorId);
+  const patient = patients.find(p => p.id === appointment.patientId);
+  const IconComponent = doctor?.icon || Stethoscope;
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={() => onNavigate('appointments')}
+          className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Volver a Citas</span>
+        </button>
+        <h1 className="text-3xl font-bold text-gray-900">Detalles de la Cita</h1>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Información del Paciente */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Información del Paciente</h2>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <User className="h-5 w-5 text-gray-400" />
+              <div>
+                <p className="font-medium text-gray-900">{patient?.name}</p>
+                <p className="text-sm text-gray-500">Edad: {patient?.age} años</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Phone className="h-5 w-5 text-gray-400" />
+              <p className="text-gray-700">{patient?.phone}</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Mail className="h-5 w-5 text-gray-400" />
+              <p className="text-gray-700">{patient?.email}</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <MapPin className="h-5 w-5 text-gray-400" />
+              <p className="text-gray-700">{patient?.address}</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Información del Doctor */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Información del Doctor</h2>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <div className={`p-2 rounded-full ${doctor?.color || 'bg-gray-500'}`}>
+                <IconComponent className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">{doctor?.name}</p>
+                <p className="text-sm text-gray-500">{doctor?.specialty}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Phone className="h-5 w-5 text-gray-400" />
+              <p className="text-gray-700">{doctor?.phone}</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Mail className="h-5 w-5 text-gray-400" />
+              <p className="text-gray-700">{doctor?.email}</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Clock className="h-5 w-5 text-gray-400" />
+              <p className="text-gray-700">{doctor?.schedule}</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Detalles de la Cita */}
+        <div className="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Detalles de la Cita</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Calendar className="h-5 w-5 text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900">Fecha</p>
+                  <p className="text-gray-700">{appointment.date}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Clock className="h-5 w-5 text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900">Hora</p>
+                  <p className="text-gray-700">{appointment.time}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Activity className="h-5 w-5 text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900">Estado</p>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    appointment.status === 'completed' 
+                      ? 'bg-green-100 text-green-800'
+                      : appointment.status === 'scheduled'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {appointment.status === 'completed' ? 'Completada' : 
+                     appointment.status === 'scheduled' ? 'Programada' : 'Cancelada'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <p className="font-medium text-gray-900 mb-2">Motivo de la Consulta</p>
+                <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">{appointment.reason}</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 mb-2">Notas Adicionales</p>
+                <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">{appointment.notes}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Acciones */}
+      <div className="flex justify-end space-x-4">
+        <button
+          onClick={() => onNavigate('appointment-form', { id: appointment.id, isEdit: true })}
+          className="bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-yellow-700 transition-colors"
+        >
+          <Edit className="h-4 w-4" />
+          <span>Editar Cita</span>
+        </button>
+        <button className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-700 transition-colors">
